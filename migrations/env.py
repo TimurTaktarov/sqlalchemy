@@ -6,7 +6,6 @@ from sqlalchemy import pool
 from alembic import context
 
 from models import User
-from models import Address
 from database import Base
 from settings import settings
 

@@ -11,6 +11,10 @@ class Settings:
     DATABASE_HOST = os.getenv('DATABASE_HOST', '')
     DATABASE_PORT = os.getenv('DATABASE_PORT', '')
 
+    SMTP_SERVER = os.getenv('SMTP_SERVER', '')
+    EMAIL_TOKEN = os.getenv('EMAIL_TOKEN', '')
+    EMAIL_USER = os.getenv('EMAIL_USER', '')
+
     @property
     def DATABASE_URL(self) -> str:
         return f'postgresql+asyncpg://{self.DATABASE_USER}:{self.DATABASE_PASSWORD}@' \

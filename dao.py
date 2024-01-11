@@ -1,46 +1,69 @@
-import asyncio
-import datetime
-
+from asyncpg import UniqueViolationError
 from sqlalchemy import insert, select, update, delete
-from pprint import pprint
-from models import User, Order
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
+from fastapi import HTTPException, status
+from models import User
 from database import async_session_maker
 
 
-# FIRST CRUD FOR USERS
-# async def create_user(
-#         name: str,
-#         login: str,
-#         password: str,
-#         age: int,
-#         nickname: str = None,
-#         notes: str = None,
-# ):
-#     # await asyncio.sleep(2)
-#     # print(9999999999)
-#     async with async_session_maker() as session:
-#         query = insert(User).values(
-#             name=name,
-#             login=login,
-#             password=password,
-#             age=age,
-#             nickname=nickname,
-#             notes=notes,
-#         ).returning(User.id, User.created_at, User.login)
-#         print(query)
-#         data = await session.execute(query)
-#         await session.commit()
-#         print(tuple(data))
-#
-#
+async def create_user(
+        name: str,
+        email: str,
+        hashed_password: str,
+        session: AsyncSession,
+) -> User:
+    user = User(
+        email=email,
+        name=name,
+        hashed_password=hashed_password,
+    )
+    session.add(user)
+    try:
+        await session.commit()
+        await session.refresh(user)
+        return user
+    except IntegrityError:
+        await session.rollback()
+        raise HTTPException(detail=f'User with email {email} probably already exists',
+                            status_code=status.HTTP_403_FORBIDDEN)
+
+
+async def get_user_by_email(email: str, session: AsyncSession) -> User | None:
+    query = select(User).filter_by(email=email)
+    result = await session.execute(query)
+    return result.scalar_one_or_none()
+
+
+async def get_user_by_uuid(user_uuid: str, session: AsyncSession) -> User | None:
+    query = select(User).filter_by(user_uuid=user_uuid)
+    result = await session.execute(query)
+    return result.scalar_one_or_none()
+
+
+async def activate_user_account(user_uuid: str, session: AsyncSession) -> User | None:
+    user = await get_user_by_uuid(user_uuid, session)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Data for account activation is not correct"
+        )
+    if user.verified_at:
+        return user
+
+    user.verified_at = True
+    session.add(user)
+    await session.commit()
+    await session.refresh(user)
+    return user
 # async def fetch_users(skip: int = 0, limit: int = 10) -> list[User]:
 #     async with async_session_maker() as session:
 #         query = select(User).offset(skip).limit(limit)
 #         result = await session.execute(query)
-#         # print(query)
+#         print(query)
 #         # print(type(result.scalars().all()))
-#         # print(result.scalars().all()[0].name)
-#         pprint(result.scalars().all()[0].__dict__)
+#         print(result.scalars().all()[0].login)
+#         # print(result.scalars().all()[0].__dict__)
 #         return result.scalars().all()
 #
 #
@@ -48,7 +71,7 @@ from database import async_session_maker
 #     async with async_session_maker() as session:
 #         query = select(User).filter_by(id=user_id)
 #         result = await session.execute(query)
-#         pprint(result.scalar_one_or_none())
+#         # print(result.scalar_one_or_none())
 #         return result.scalar_one_or_none()
 #
 #
@@ -59,8 +82,8 @@ from database import async_session_maker
 #         query = update(User).where(User.id == user_id).values(**values)
 #         result = await session.execute(query)
 #         await session.commit()
-#         print(tuple(result))
-#         # print(query)
+#         # print(tuple(result))
+#         print(query)
 #
 #
 # async def delete_user(user_id: int):
@@ -69,101 +92,3 @@ from database import async_session_maker
 #         await session.execute(query)
 #         await session.commit()
 #         print(query)
-#
-#
-# async def main():
-#     await asyncio.gather(
-#         # create_user(
-#         #     name='Misha',
-#         #     login='Zuzhap-3',
-#         #     password='007',
-#         #     age=25,
-#         #     nickname='loloscha',
-#         # ),
-#         # fetch_users(limit=10),
-#         # get_user_by_id(1),
-#         # update_user(6, {'name': 'Alex-23', 'age': 69})
-#         delete_user(6)
-#     )
-#
-#
-# asyncio.run(main())
-
-
-# # SECOND CRUD FOR ORDERS
-
-async def create_order(
-        quantity: int,
-        price: float,
-        customer: int,
-        notes: str = None,
-):
-    # await asyncio.sleep(2)
-    # print(9999999999)
-    async with async_session_maker() as session:
-        query = insert(Order).values(
-            quantity=quantity,
-            price=price,
-            customer=customer,
-            notes=notes,
-        ).returning(Order.id, Order.created_at, Order.customer)
-        print(query)
-        data = await session.execute(query)
-        await session.commit()
-        print(tuple(data))
-
-
-async def fetch_orders(skip: int = 0, limit: int = 10) -> list[Order]:
-    async with async_session_maker() as session:
-        query = select(Order).offset(skip).limit(limit)
-        result = await session.execute(query)
-        # print(query)
-        # print(type(result.scalars().all()))
-        print(result.scalars().all()[0].price)
-        # print(result.scalars().all()[0].__dict__)
-        return result.scalars().all()
-
-
-async def get_order_by_id(order_id: int) -> Order | None:
-    async with async_session_maker() as session:
-        query = select(Order).filter_by(id=order_id)
-        result = await session.execute(query)
-        print(result.scalar_one_or_none())
-        return result.scalar_one_or_none()
-
-
-async def update_order(order_id: int, values: dict):
-    if not values:
-        return
-    async with async_session_maker() as session:
-        query = update(Order).where(Order.id == order_id).values(**values)
-        result = await session.execute(query)
-        await session.commit()
-        # print(tuple(result))
-        print(query)
-
-
-async def delete_order(order_id: int):
-    async with async_session_maker() as session:
-        query = delete(Order).where(Order.id == order_id)
-        await session.execute(query)
-        await session.commit()
-        print(query)
-
-
-async def main():
-    await asyncio.gather(
-        # create_order(
-        #     quantity=10,
-        #     price=129.9,
-        #     customer=1,
-        #     notes='Lucky',
-        # ),
-        # fetch_orders(skip=0)
-        # get_order_by_id(1),
-        # update_order(1, {'customer': 5, 'notes': 'Milk'})
-        delete_order(1)
-    )
-
-
-asyncio.run(main())
