@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<form method="post">
+  <div class="mb-3">
+    <label for="nameId" class="form-label">New Name</label>
+    <input type="text" name='name' class="form-control" id="nameId" required minlength="3" placeholder="New Name" value="{{name}}">
+  </div>
+
+
+  <div style="padding-top: 20px" class="mb-3">
+    <label for="PastInputPasswordConfirm" class="form-label">Last Password</label>
+    <input type="password" name='password' class="form-control" id="PastInputPasswordConfirm" placeholder="Enter the last Password, for confirmation" required minlength="8" value="{{last_password_confirm}}">
+  </div>
+
+  <div style="padding-top: 20px" class="mb-3">
+    <label for="InputPassword" class="form-label">New Password</label>
+    <input type="password" name='password' class="form-control" id="InputPassword" required minlength="8" placeholder="New Password" value="{{password}}">
+  </div>
+
+    <div style="padding-top: 20px" class="mb-3">
+    <label for="InputPasswordConfirm" class="form-label">New Password confirmation</label>
+    <input type="password" name='password_confirm' class="form-control" id="InputPasswordConfirm" required minlength="8" placeholder="New Password confirmation" value="{{password_confirm}}">
+  </div>
+
+  <div style="padding-top: 20px" class="mb-3">
+    <label for="avatar" class="form-label">New Avatar</label>
+    <input type="text" name='avatar' class="form-control" id="avatar" placeholder="Avatar url or link" value="{{avatar}}">
+  </div>
+
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+{% endblock %}

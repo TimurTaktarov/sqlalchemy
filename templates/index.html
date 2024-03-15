@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+
+<div id="padr" class="btn btn-group">
+  <button class="btn btn-light dropdown-toggle m-2" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+    Select Brand
+  </button>
+  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+      {% for brand in brands %}
+    <li><a class="dropdown-item" href="{{ url_for('index') }}?query={{ brand }}">{{ brand }}</a></li>
+      {% endfor %}
+  </ul>
+</div>
+
+
+
+<div class="container text-center">
+  <div class="row row-cols-2 row-cols-lg-5 g-2 g-lg-3">
+
+
+
+        {% for product in products %}
+           <div class="card m-2" style="width: 18rem;">
+              <img style="padding-top: 6px" src="
+              {% if product.image_url %}
+              {{ product.image_url }}
+              {% elif product.image_file %}
+
+                {{ url_for('product_images', path=product.image_file) }}
+
+              {% else %}
+
+              https://boschbrandstore.com/wp-content/uploads/2019/01/no-image.png
+              {%endif %}
+
+                " class="card-img-top" alt="...">
+              <div class="card-body">
+                <h5 class="card-title">{{ product.title }}</h5>
+                <p class="card-text">{{product.price}} $</p>
+                  <form action="{{ url_for('add_product', product_id=product.id) }}" method="post">
+                    <button type="submit" class="btn btn-secondary">Add to the cart</button>
+                  </form>
+
+                  {% if user and user.is_admin %}
+                      <form action="{{ url_for('admin_delete_product', product_id=product.id) }}" method="post">
+                        <button style="padding-right: 5px; margin-top: 7px;" type="submit" class="btn btn-secondary btn-block btn-s">
+                         <i class="bi bi-bag-x-fill">Delete Product</i>
+                        </button>
+                      </form>
+                  {% endif %}
+
+              </div>
+            </div>
+        {% endfor %}
+  </div>
+</div>
+
+<style>
+    #padr{
+      padding-right: 400px
+    }
+</style>
+
+
+{% endblock %}

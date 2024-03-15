@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<body>
+   {% for comment in all_comments %}
+   <div style="padding-top: 20px">
+      <div class="card">
+        <div class="card-header">
+          #{{ comment.id }} {{ user_names[comment.user_id] }}
+            <h6>Published at {{ comment.created_at.strftime('%Y-%m-%d') }}</h6>
+        </div>
+        <div class="card-body">
+          <blockquote class="blockquote mb-0">
+            <footer class="blockquote-footer"><cite title="Source Title">{{ comment.text_review }}</cite></footer>
+          </blockquote>
+        </div>
+      </div>
+   </div>
+   {% endfor %}
+</body>
+
+
+{% endblock %}

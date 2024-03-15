@@ -5,16 +5,17 @@ from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+
+from library.render import render_template
 from settings import settings
 
-
 def send_email(
-    *,
-    recipients: list[str],
-    mail_body: str,
-    mail_subject: str,
-    attachment: str = None,
-    mime_type: str = "html",
+        *,
+        recipients: list[str],
+        mail_body: str,
+        mail_subject: str,
+        attachment: str = None,
+        mime_type: str = "html",
 ):
     SERVER = settings.SMTP_SERVER
     PASSWORD = settings.EMAIL_TOKEN
@@ -60,8 +61,8 @@ def send_email_verification(user_email, user_uuid, user_name, host: str = "http:
             Path(__file__).parent / 'email_verification.html',
             encoding='utf-8') as file:
         content = file.read()
-        content = content\
-            .replace('{{ user }}', user_name)\
+        content = content \
+            .replace('{{ user }}', user_name) \
             .replace('{{ link }}', activate_url)
 
     send_email(
@@ -69,3 +70,16 @@ def send_email_verification(user_email, user_uuid, user_name, host: str = "http:
         mail_body=content,
         mail_subject=f'Account verification'
     )
+
+
+async def send_email_order(user_email, user_name, order, cart):
+    file = 'templates/order_sender.html'
+    content = await render_template(file, {'user_name': user_name, 'order': order, 'cart': cart})
+
+    send_email(
+        recipients=[user_email],
+        mail_body=content,
+        mail_subject=f'Order message'
+    )
+
+

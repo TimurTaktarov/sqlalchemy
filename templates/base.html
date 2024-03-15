@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="{{ url_for('static', path='/base.scss') }}" rel="stylesheet">
+  </head>
+
+  <body>
+      <nav class="navbar navbar-expand-lg bg-body-tertiary">
+      <div class="container-fluid">
+        <div id="logo-link">
+        <a  class="navbar-brand" href="{{ url_for('index') }}">
+          <img id="logosize" src="https://cdn-icons-png.flaticon.com/512/6705/6705247.png">
+        </a>
+        </div>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul id="nav-list" class="navbar-nav me-auto mb-2 mb-lg-0">
+            {% if cart %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('cart') }}">
+                Cart
+              </a>
+            </li>
+            {% endif %}
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Community
+              </a>
+              <ul class="dropdown-menu">
+                {% if user and user.is_admin %}
+                <li><a class="dropdown-item" href="{{ url_for('add_product') }}">Add products</a></li>
+                {% endif %}
+                <li><a class="dropdown-item" href="{{ url_for('add_review_get') }}">Add comment</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('all_comments') }}">All comments</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li style="padding-left: 5px"><a class="dropdown-item" href="{{ url_for('tech_support') }}"><i class="bi bi-emoji-astonished"></i> Technical Support</a></li>
+              </ul>
+            </li>
+          </ul>
+          <form class="d-flex" role="search" action="{{ url_for('index') }}" method="post">
+            <input class="form-control me-2" name="search" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-success" type="submit">Search</button>
+          </form>
+
+          <ul class="navbar-nav mb-2 mb-lg-0" style="padding-right: 30px; ">
+            {% if user %}
+              <li style="padding-left: 10px" class="nav-item m-2">Welcome, {{ user.name }}</li>
+              <li class="nav-item" style="padding-left: 10px">
+                <a class="nav-link active" aria-current="page" href="{{ url_for('user_logout_web') }}">Logout</a>
+              </li>
+            {% else %}
+              <li class="nav-item" style="padding-left: 10px">
+                <a class="nav-link active" aria-current="page" href="{{ url_for('web_register') }}">Registration</a>
+              </li>
+              <li class="nav-item" style="padding-left: 10px">
+                <a class="nav-link active" aria-current="page" href="{{ url_for('user_login_web') }}">Login</a>
+              </li>
+            {% endif %}
+            <li class="nav-item" style="padding-left: 10px">
+            <button class="btn btn-dark shadow" id="btnSwitch">Toggle Mode</button>
+            </li>
+          </ul>
+
+          {% if user %}
+      <ul class="navbar-nav profile-menu">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" style="padding-right: 1rem" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <img style="width: 45px; height: 45px" src="
+                {%if user.avatar %}
+                {{ user.avatar }}
+                {%else%}
+                https://cdn.icon-icons.com/icons2/876/PNG/512/masculine-avatar-on-circle_icon-icons.com_68297.png
+                {% endif %}
+
+                " alt="No picture yet">
+          </a>
+          <ul style="margin-top: 20px;" class="dropdown-menu dropdown-menu-lg-end" aria-labelledby="navbarDropdown">
+            <li style="padding-left: 5px"><a class="dropdown-item" href="{{ url_for('update_user_data') }}"><i class="bi bi-gear"></i> Profile</a></li>
+            <li style="padding-left: 5px"><a class="dropdown-item" href="{{ url_for('cart') }}"><i class="bi bi-cart"></i> Cart</a></li>
+          </ul>
+        </li>
+     </ul>
+          {% else %}
+          {% endif %}
+
+        </div>
+      </div>
+    </nav>
+
+
+    <div class="container">
+      {% block content %}
+      {% endblock %}
+    </div>
+
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+<script>
+
+document.getElementById('btnSwitch').addEventListener('click', () => {
+    var currentTheme = document.documentElement.getAttribute('data-bs-theme');
+    var newTheme = (currentTheme === 'dark') ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-bs-theme', newTheme);
+    document.cookie = "theme=" + encodeURIComponent(newTheme) + "; expires=" + new Date(new Date().getTime() + 60 * 60 * 1000).toUTCString();
+});
+
+  function getCookie(name) {
+    var cookieArr = document.cookie.split("; ");
+    for (var i = 0; i < cookieArr.length; i++) {
+        var cookiePair = cookieArr[i].split("=");
+        if (cookiePair[0] === name) {
+            return decodeURIComponent(cookiePair[1]);
+        }
+    }
+    return null;
+}
+var savedTheme = getCookie("theme");
+if (savedTheme) {
+    document.documentElement.setAttribute('data-bs-theme', savedTheme);
+}
+
+</script>
+
+
+  </body>
+
+
+
+</html>
+
+
+<style>
+  #logosize{
+    height: 50px;
+    align-items: center;
+    margin-left: 5px;
+    }
+
+  #logo-link{
+    display: flex;
+    align-items: center;
+    height: 100%;
+    margin-left: 7px;
+    }
+
+</style>
+

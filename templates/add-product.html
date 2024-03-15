@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="errors">
+    <ul class="list-group">
+        {% for error in errors %}
+           <li class="list-group-item">{{ error }}</li>
+        {% endfor %}
+    </ul>
+</div>
+
+
+<form method="post" action="{{ url_for('add_product_post') }}" enctype="multipart/form-data">
+
+      <div class="mb-3">
+        <label for="Title" class="form-label">Product title</label>
+        <input type="text" name='title' class="form-control" id="Title" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="Price" class="form-label">Price</label>
+        <input type="number" name='price' class="form-control" id="Price" required>
+      </div>
+
+    <div class="mb-3">
+    <label for="ImageURL" class="form-label">Image URL</label>
+    <input type="text" name='image_url' class="form-control" id="ImageURL">
+    </div>
+
+    <div class="mb-3">
+    <label for="ImageFile" class="form-label">Image file</label>
+    <input type="file" name='image_file' class="form-control" id="ImageFile">
+    </div>
+
+  <button type="submit" class="btn btn-primary">Add product</button>
+</form>
+
+{% endblock %}
