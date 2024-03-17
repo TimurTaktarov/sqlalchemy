@@ -14,4 +14,4 @@ COPY . /app
 RUN poetry config virtualenvs.create false \
     && poetry install --no-interaction --no-ansi
 
-EXPOSE 8000
+EXPOSE 9000

@@ -13,10 +13,10 @@ services:
   api:
     build: .
     env_file: .env
-    command: bash -c "alembic upgrade head &&  uvicorn main:app --port=8000 --host=0.0.0.0 --reload"
+    command: bash -c "alembic upgrade head &&  uvicorn main:app --port=9000 --host=0.0.0.0 --reload"
     volumes:
       - .:/app
     ports:
-      - "8000:8000"
+      - "9000:9000"
     depends_on:
       - db
